@@ -15,20 +15,26 @@ module SidekiqWatcher
         set :port, @config.port
       rescue => ex
         SidekiqWatcher.logger.error(ex)
+        SidekiqWatcher.logger.info("Restarting in 3 seconds...")
         sleep 3
       ensure
         🛫
       end
 
       def 🛫
+        Thread::abort_on_exception = true
         Thread.start do
+          pb = SidekiqWatcher::Probe.new(@config)
+          nt = SidekiqWatcher::Notifier.new(@config, pb.queues)
+
           while
-            SidekiqWatcher::Probe.probe(@config)
-            SidekiqWatcher.logger.info("probing!")
+            pb.probe
+            SidekiqWatcher.logger.info("Liveness check: probing!")
 
             if @config.statsd_client
-              SidekiqWatcher::Notifier.investigate(@config, SidekiqWatcher::Probe.queues)
-              SidekiqWatcher.logger.info("watching!")
+              nt.queues = pb.queues
+              nt.investigate
+              SidekiqWatcher.logger.info("Liveness check: watching!")
             end
 
             sleep @config.check_interval

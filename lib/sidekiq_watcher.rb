@@ -31,7 +31,6 @@ module SidekiqWatcher
 
   def self.alive?
     status = redis.get(key)
-    logger.info(status)
     logger.info("Liveness check: #{Status.get_type(status)}")
 
     if status.to_i >= Status::DEFAULT
