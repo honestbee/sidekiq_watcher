@@ -1,14 +1,10 @@
-require "sidekiq"
-require "singleton"
-require "sidekiq_watcher/config"
+require 'sidekiq'
+require 'singleton'
+require 'sidekiq_watcher/config'
 require 'sidekiq_watcher/server'
+require 'sidekiq_watcher/status'
 
 module SidekiqWatcher
-  ALIVE = 1
-  ALERT = -1
-  DEAD  = -2
-  DEFAULT = 0
-
   def self.start
     Sidekiq.configure_server do |config|
       config.on(:startup) do
@@ -35,7 +31,7 @@ module SidekiqWatcher
 
   def self.alive?
     status = redis.get(key)
-    if status.to_i >= 0
+    if status.to_i >= Status::DEFAULT
       return true
     else
       return false
@@ -43,15 +39,15 @@ module SidekiqWatcher
   end
 
   def self.alive!
-    redis.set(key, ALIVE)
+    redis.set(key, Status::ALIVE)
   end
 
   def self.dead!
-    redis.set(key, DEAD)
+    redis.set(key, Status::DEAD)
   end
 
   def self.alert!
-    redis.set(key, ALERT)
+    redis.set(key, Status::ALERT)
   end
 
   def self.redis

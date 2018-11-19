@@ -26,19 +26,16 @@ module SidekiqWatcher
             SidekiqWatcher::Probe.probe(@config)
             SidekiqWatcher.logger.info("probing!")
 
-            SidekiqWatcher::Notifier.investigate(@config, SidekiqWatcher::Probe.queues)
-            SidekiqWatcher.logger.info("watching!")
+            if @config.statsd_client
+              SidekiqWatcher::Notifier.investigate(@config, SidekiqWatcher::Probe.queues)
+              SidekiqWatcher.logger.info("watching!")
+            end
 
             sleep @config.check_interval
           end
         end
 
         Thread.start { run! }
-      end
-
-      def quit!
-        super
-        exit
       end
     end
 

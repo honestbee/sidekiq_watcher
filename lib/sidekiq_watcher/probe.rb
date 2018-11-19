@@ -9,9 +9,9 @@ module SidekiqWatcher
       end
 
       this_worker = nil
-      sset.each do |s|
-        if s.instance_variable_get(:@attribs)["hostname"] == config.hostname
-          this_worker = s
+      sset.each do |process|
+        if process.instance_variable_get(:@attribs)["hostname"] == config.hostname
+          this_worker = process
           break
         end
       end
@@ -25,10 +25,15 @@ module SidekiqWatcher
         job = Sidekiq::Queue.new(queue).first
         next unless job
 
-        if job.latency > config.latency_dead_threshold[queue.to_sym]
-          puts 'dead!'
-          # TODO
-          # notify datadog
+        lat_threshold = config.latency_dead_threshold[queue.to_sym]
+
+        if lat_threshold && job.latency > config.latency_dead_threshold[queue.to_sym]
+          SidekiqWacher.logger.error('Latency of job in #{queue} is too high, worker is possibly dead!')
+
+          if config.statsd_client
+            config.statsd_client.timinig('sidekiq.latency.dead', job.latency, tags: ["queue:#{queue}"])
+          end
+
           SidekiqWatcher.dead!
         end
       end
