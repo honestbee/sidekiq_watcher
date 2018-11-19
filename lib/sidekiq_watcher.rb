@@ -15,7 +15,7 @@ module SidekiqWatcher
         SidekiqWatcher.tap do |sa|
           sa::Server.start
           alive!
-          puts "success!!"
+          logger.info("sidekiq watch is boot up!")
         end
       end
     end
@@ -27,6 +27,10 @@ module SidekiqWatcher
 
   def self.config
     @config ||= SidekiqWatcher::Config.instance
+  end
+
+  def self.logger
+    Sidekiq::Logging.logger
   end
 
   def self.alive?
@@ -55,7 +59,8 @@ module SidekiqWatcher
   end
 
   def self.key
-    "#{config.hostname}-sidekiq-watcher"
+    @timestamp_key ||= Time.now.to_f % 1
+    "#{config.hostname}-#{@timestamp_key}-sidekiq-watcher"
   end
 end
 

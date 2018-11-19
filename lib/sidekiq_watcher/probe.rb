@@ -1,19 +1,16 @@
 module SidekiqWatcher
   class Probe
-    attr_reader :worker
-    attr_reader :queues
+    attr_reader :worker, :queues
 
     def self.probe(config)
-      @sset = []
-      @config = config
-      @hostname = config.hostname
+      sset = []
       Sidekiq::ProcessSet.new.each do |s|
-        @sset << s
+        sset << s
       end
 
       this_worker = nil
-      @sset.each do |s|
-        if s.instance_variable_get(:@attribs)["hostname"] == @config.hostname
+      sset.each do |s|
+        if s.instance_variable_get(:@attribs)["hostname"] == config.hostname
           this_worker = s
           break
         end
@@ -28,7 +25,7 @@ module SidekiqWatcher
         job = Sidekiq::Queue.new(queue).first
         next unless job
 
-        if job.latency > @config.latency_dead_threshold[queue.to_sym]
+        if job.latency > config.latency_dead_threshold[queue.to_sym]
           puts 'dead!'
           # TODO
           # notify datadog

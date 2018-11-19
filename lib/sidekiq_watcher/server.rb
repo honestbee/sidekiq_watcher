@@ -7,18 +7,27 @@ module SidekiqWatcher
   class Server < Sinatra::Base
     set :bind, '0.0.0.0'
 
+    attr_reader :config
+
     class << self
       def start
-        set :port, SidekiqWatcher.config.port
         @config = SidekiqWatcher::Config.instance
+        set :port, @config.port
+      rescue => ex
+        SidekiqWatcher.logger.error(ex)
+        sleep 3
+      ensure
+        🛫
+      end
 
+      def 🛫
         Thread.start do
           while
             SidekiqWatcher::Probe.probe(@config)
-            puts "probing!"
+            SidekiqWatcher.logger.info("probing!")
 
-            #SidekiqWatcher::Notifier.investigate(@config, SidekiqWatcher::Probe.queues)
-            puts "watching!"
+            SidekiqWatcher::Notifier.investigate(@config, SidekiqWatcher::Probe.queues)
+            SidekiqWatcher.logger.info("watching!")
 
             sleep @config.check_interval
           end
