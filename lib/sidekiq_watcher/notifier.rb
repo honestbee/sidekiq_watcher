@@ -13,6 +13,13 @@ module SidekiqWatcher
         pending[queue] = sz if sz > config.pending_alert_threshold[queue.to_sym]
       end
 
+      unless latencies.empty? && pending.empty?
+        logger.warn("Liveness check: Reached alert threashold.")
+        logger.warn("Latency: #{latencies}")
+        logger.warn("Pending: #{pending}")
+      end
+
+      logger.info("Liveness check: Notify datadog.")
       notify_datadog(config, latencies, pending)
     end
 
@@ -31,11 +38,11 @@ module SidekiqWatcher
       end
     end
 
-    def notify_bugsnag(latencies, pending)
+    def self.notify_bugsnag(latencies, pending)
       raise NotImplementedError
     end
 
-    def notify_slack(latencies, pending)
+    def self.notify_slack(latencies, pending)
       raise NotImplementedError
     end
   end

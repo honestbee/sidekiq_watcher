@@ -11,7 +11,7 @@ module SidekiqWatcher
         SidekiqWatcher.tap do |sa|
           sa::Server.start
           alive!
-          logger.info("sidekiq watch is boot up!")
+          logger.info("sidekiq_watcher is boot up!")
         end
       end
     end
@@ -31,6 +31,9 @@ module SidekiqWatcher
 
   def self.alive?
     status = redis.get(key)
+    logger.info(status)
+    logger.info("Liveness check: #{Status.get_type(status)}")
+
     if status.to_i >= Status::DEFAULT
       return true
     else
@@ -39,14 +42,17 @@ module SidekiqWatcher
   end
 
   def self.alive!
+    logger.info("Liveness check: set status to alive.")
     redis.set(key, Status::ALIVE)
   end
 
   def self.dead!
+    logger.info("Liveness check: set status to dead.")
     redis.set(key, Status::DEAD)
   end
 
   def self.alert!
+    logger.info("Liveness check: set status to alert.")
     redis.set(key, Status::ALERT)
   end
 
