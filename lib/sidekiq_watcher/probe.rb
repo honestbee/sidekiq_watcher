@@ -1,6 +1,6 @@
 module SidekiqWatcher
   class Probe
-    attr_reader :worker, :queues
+    attr_reader :queues
 
     def initialize(config)
       @config = config
@@ -12,18 +12,18 @@ module SidekiqWatcher
         sset << s
       end
 
-      this_worker = nil
+      this_worker = []
+      SidekiqWatcher.logger.info(sset)
+
       sset.each do |process|
         if process.instance_variable_get(:@attribs)["hostname"] == @config.hostname
-          this_worker = process
-          break
+          this_worker << process
         end
       end
 
-      return unless this_worker
-
-      @worker = this_worker
-      @queues = this_worker.instance_variable_get(:@attribs)["queues"]
+      @queues = []
+      this_worker.each{ |w| @queues << w.instance_variable_get(:@attribs)["queues"] }
+      @queues = @queues.flatten.uniq
 
       @queues.each do |queue|
         job = Sidekiq::Queue.new(queue).first
@@ -32,8 +32,8 @@ module SidekiqWatcher
         lat_threshold = @config.latency_dead_threshold[queue.to_sym]
 
         if lat_threshold
-          if job.latency > @config.latency_dead_threshold[queue.to_sym]
-            SidekiqWatcher.logger.error("Latency of job in #{queue} is too high, worker is possibly dead!")
+          if job.latency > lat_threshold
+            SidekiqWatcher.logger.error("Latency of job in #{queue} is #{job.latency}, larger than threshold #{lat_threshold}, worker is possibly dead!")
 
             if @config.statsd_client
               @config.statsd_client.timing('sidekiq.latency.dead', job.latency, tags: ["queue:#{queue}"])
@@ -46,6 +46,8 @@ module SidekiqWatcher
           end
         end
       end
+
+      true
     end
   end
 end

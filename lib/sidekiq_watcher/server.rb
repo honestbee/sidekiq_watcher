@@ -18,10 +18,10 @@ module SidekiqWatcher
         SidekiqWatcher.logger.info("Restarting in 3 seconds...")
         sleep 3
       ensure
-        🛫
+        🔍
       end
 
-      def 🛫
+      def 🔍
         Thread::abort_on_exception = true
         Thread.start do
           pb = SidekiqWatcher::Probe.new(@config)
@@ -29,14 +29,19 @@ module SidekiqWatcher
 
           while
             pb.probe
-            SidekiqWatcher.logger.info("Liveness check: probing!")
-
+=begin
+            unless status
+              SidekiqWatcher.logger.warn("Can't find worker, re-check in #{@config.check_interval} seconds...")
+              sleep @config.check_interval
+              next
+            end
+=end
             if @config.statsd_client
               nt.queues = pb.queues
               nt.investigate
-              SidekiqWatcher.logger.info("Liveness check: watching!")
             end
 
+            SidekiqWatcher.logger.info("Re-check in #{@config.check_interval} seconds...")
             sleep @config.check_interval
           end
         end

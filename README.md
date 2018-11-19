@@ -6,12 +6,12 @@ Still in progress. This gem watches the status of sidekiq workers for Kubernetes
 ```ruby
 SidekiqWatcher.setup do |config|
   config.latency_dead_threshold = {
-      'low': 5,
-      'image-uplaoder': 100,
-      'high': 10
+      low: 5,
+      image-uplaoder: 100,
+      high: 10
   }
-  config.latency_alert_threshold = {'low': 2}
-  config.pending_alert_threshold = {'low': 10}
+  config.latency_alert_threshold = {low: 2}
+  config.pending_alert_threshold = {low: 10}
   config.statsd_client = Statsd.client
 end
 ```
