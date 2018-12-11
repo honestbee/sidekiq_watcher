@@ -15,6 +15,10 @@ module SidekiqWatcher
       @port = 7433
       @hostname = Socket.gethostname
       @check_interval = 5
+
+      @latency_dead_threshold ||= {}
+      @latency_alert_threshold ||= {}
+      @pending_alert_threshold ||= {}
     end
   end
 end
