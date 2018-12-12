@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'sidekiq_watcher'
-  s.version     = '0.1.1'
+  s.version     = '0.1.2'
   s.date        = '2018-11-15'
   s.description = "a gem"
   s.summary     = "This is an example!"
