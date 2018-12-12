@@ -14,7 +14,7 @@ module SidekiqWatcher
     def initialize
       @port = 7433
       @hostname = Socket.gethostname
-      @check_interval = 5
+      @check_interval = 15
 
       @latency_dead_threshold ||= {}
       @latency_alert_threshold ||= {}

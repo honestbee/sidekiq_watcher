@@ -41,7 +41,7 @@ module SidekiqWatcher
               nt.investigate
             end
 
-            SidekiqWatcher.logger.info("Re-check in #{@config.check_interval} seconds...")
+            SidekiqWatcher.logger.debug("Re-check in #{@config.check_interval} seconds...")
             sleep @config.check_interval
           end
         end
