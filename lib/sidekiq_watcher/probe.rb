@@ -13,7 +13,7 @@ module SidekiqWatcher
       end
 
       this_worker = []
-      SidekiqWatcher.logger.info(sset)
+      SidekiqWatcher.logger.debug(sset)
 
       sset.each do |process|
         if process.instance_variable_get(:@attribs)["hostname"] == @config.hostname
