@@ -1,5 +1,6 @@
 # sidekiq_watcher
-Still in progress. This gem watches the status of sidekiq workers for Kubernetes and Datadog.
+This gem watches the status of sidekiq workers. But please understand it is completely different from https://github.com/arturictus/sidekiq_alive/, which is designed to monitor the health of sidekiq workers.
+The purpose of this project, is to monitor the pending jobs and latency of specific queues. If it exceeds the threshold, it sends an alert to a monitor tool(at this moment only datadog).
 
 # Usage
 ### Example
